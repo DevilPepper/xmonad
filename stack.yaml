@@ -13,6 +13,6 @@ extra-deps:
 
 ghc-options:
   "$locals": -fno-warn-tabs
-  "$everything": -O2
+  "$everything": -j -O2
 
 local-bin-path: ./bin
