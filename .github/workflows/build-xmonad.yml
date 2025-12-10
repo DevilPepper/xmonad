@@ -10,9 +10,35 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: debian:13
+    env:
+      STACK_ROOT: /tmp/.stack-root
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install system dependencies
+      run: |
+        apt update
+        apt install -y \
+          \
+          build-essential \
+          curl \
+          libffi-dev \
+          libffi8 \
+          libgmp-dev \
+          libgmp10 \
+          libncurses-dev \
+          libncurses6 \
+          libtinfo6 \
+          pkg-config \
+          \
+          libx11-dev \
+          libxft-dev \
+          libxinerama-dev \
+          libxrandr-dev \
+          libxss-dev
 
     - name: Setup Haskell Stack
       uses: haskell-actions/setup@v2
@@ -25,26 +51,16 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ~/.stack
+          /tmp/.stack-root
           .stack-work
         key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml', '**/package.yaml') }}
         restore-keys: |
           ${{ runner.os }}-stack-
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libx11-dev \
-          libxft-dev \
-          libxinerama-dev \
-          libxrandr-dev \
-          libxss-dev
-
     - name: Build project
       run: |
-        stack setup
-        stack build --copy-bins
+        stack setup --allow-different-user
+        stack build --copy-bins --allow-different-user
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
