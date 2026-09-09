@@ -9,6 +9,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Layout.Spacing
 import XMonad.Util.EZConfig
 import XMonad.Util.Replace
+import Data.List (isPrefixOf)
 
 -- https://xmonad.github.io/xmonad-docs/xmonad-contrib/XMonad-Config-Prime.html#t:KeySym
 -- https://xmonad.github.io/xmonad-docs/xmonad-contrib/XMonad-Config-Prime.html#v:mod5MapIndex
@@ -62,9 +63,16 @@ unbindKeys =
 		"M-."
 	]
 
-start_wm = xmonad $ ewmhFullscreen $ ewmh $ docks def {
+myManageHook :: ManageHook
+myManageHook = composeAll
+  [
+    fmap ("steam_app_" `isPrefixOf`) className --> doShift "6"
+  ]
+
+start_wm = xmonad $ ewmhFullscreen $ setEwmhActivateHook doIgnore $ ewmh $ docks def {
 		terminal = "kitty",
 		modMask = super,
+		manageHook = myManageHook <+> manageHook def,
 		layoutHook = avoidStruts $ smartSpacing 10 $ layout,
 		borderWidth = 0
 	}
